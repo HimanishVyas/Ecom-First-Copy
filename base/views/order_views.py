@@ -12,11 +12,12 @@ from rest_framework import status
 
 
 @api_view(['POST'])
-@permission_classes(['IsAuthenticated'])
+@permission_classes([IsAuthenticated])
 def addOrderItems(request):
     user = request.user
     data = request.data
-
+    print(data)
+    
     orderItems = data['orderItems']
 
     if orderItems and len(orderItems) == 0:
@@ -27,8 +28,8 @@ def addOrderItems(request):
 
         order = Order.objects.create(
             user = user,
-            paymentMethod = ['paymentMethod'],
-            taxPrice = ['taxPrice'],
+            paymentMethod = data['paymentMethod'],
+            taxPrice = data['taxPrice'],
             shippingPrice = data['shippingPrice'],
             totalPrice = data['totalPrice']
         )
@@ -50,13 +51,12 @@ def addOrderItems(request):
             product = Product.objects.get(_id=i['product'])
 
             item = OrderItem.objects.create(
-                Product = Product,
+                product = product,
                 order = order,
                 name = product.name,
                 qty = i['qty'],
                 price = i['price'],
                 image = product.image.url,
-
             )
 
             #(4) Update Stock
@@ -64,5 +64,5 @@ def addOrderItems(request):
             product.countInStock -= item.qty
             product.save()
 
-        serializer = OrderSerializer(order, many=True)
+    serializer = OrderSerializer(order, many=False)
     return Response('ORDER')

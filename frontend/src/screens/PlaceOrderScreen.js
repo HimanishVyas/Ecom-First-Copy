@@ -5,18 +5,86 @@ import {useDispatch, useSelector} from 'react-redux';
 import Message from '../components/Message'
 import FormContainer from '../components/FormContainer';
 import CheckoutSteps from '../components/CheckoutSteps';
+import { createOrder } from '../actions/orderActtions'
 
-function PlaceOrderScreen() {
-    const cart = useSelector(state => state.cart)  
+function PlaceOrderScreen({history}){
 
-    cart.itemsPrice = cart.cartItems.reduce((acc, item) => acc + item.price * item.qty, 0).toFixed(2)
-    cart.shippingPrice = (cart.itemsPrice > 500 ? 0 : 50).toFixed(2)
-    cart.TaxPrice = Number((0.083) * cart.itemsPrice).toFixed(2)
-    cart.totalPrice = (Number(cart.itemsPrice) + Number(cart.shippingPrice) + Number(cart.TaxPrice)).toFixed(2) 
+	const orderCreate = useSelector(state => state.orderCreate)
+	const {order, success, error} = orderCreate
 
-    const PlaceOrder = () => {
-        console.log('Place Order')
-    }
+	const cart = useSelector(state => state.cart)
+
+	cart.itemsPrice = cart.cartItems.reduce((acc, item) => acc + item.price * item.qty, 0).toFixed(2)
+	cart.shippingPrice = (cart.itemsPrice > 100000 ? 0 : 2500).toFixed(2)
+	cart.taxPrice = ((0.079) * cart.itemsPrice).toFixed(2)
+	cart.totalPrice = (Number(cart.itemsPrice) + Number(cart.shippingPrice) + Number(cart.taxPrice)).toFixed(2)
+
+	if(!cart.paymentMethod){
+		history.push('/payment')
+	}
+
+	useEffect(() => {
+		if(success){
+            console.log(order.id)
+			history.push(`/order/${order._id}`)
+		}
+	},[success, history])
+
+	const dispatch = useDispatch()
+	const placeOrder = () =>{
+		dispatch(createOrder({
+			orderItems:cart.cartItems,
+			shippingAddress:cart.shippingAddress,
+			paymentMethod:cart.paymentMethod,
+			itemsPrice:cart.itemsPrice,
+			shippingPrice:cart.shippingPrice,
+			taxPrice:cart.taxPrice,
+			totalPrice:cart.totalPrice,
+		}))
+	}
+
+
+
+
+
+
+
+// function PlaceOrderScreen({history}){
+//     const orderCreate = useSelector(state => state.orderCreate)
+//     const {order, error, success} = orderCreate
+
+//     const dispatch = useDispatch()
+
+//     const cart = useSelector(state => state.cart)  
+
+//     cart.itemsPrice = cart.cartItems.reduce((acc, item) => acc + item.price * item.qty, 0).toFixed(2)
+//     cart.shippingPrice = (cart.itemsPrice > 500 ? 0 : 50).toFixed(2)
+//     cart.taxPrice = Number((0.083) * cart.itemsPrice).toFixed(2)
+//     cart.totalPrice = (Number(cart.itemsPrice) + Number(cart.shippingPrice) + Number(cart.taxPrice)).toFixed(2) 
+
+//     // if(!cart.paymentMethod){
+//     //     history.push('/payment')
+//     // }
+
+//     useEffect(() => {
+//         if(success){
+//             history.push(`/order/${order._id}`)
+//         }
+
+//     },[success, history])
+
+//     const PlaceOrder = () => {
+//         dispatch(createOrder({
+//             orderItems: cart.cartItems,
+//             shippingAddress: cart.shippingAddress,
+//             paymentMethod: cart.paymentMethod,
+//             itemsPrice: cart.itemsPrice,
+//             shippingPrice: cart.shippingPrice,
+//             taxPrice: cart.taxPrice,
+//             totalPrice: cart.totalPrice,
+            
+//         }))
+//     }
   return (
     <div>
         <CheckoutSteps step1 step2 step3 step4/>
@@ -44,7 +112,7 @@ function PlaceOrderScreen() {
 
                         <p>
                             <strong>Method: </strong>
-                            {cart.shippingMethod}
+                            {cart.paymentMethod}
                         
                         </p>
                     </ListGroup.Item>
@@ -105,7 +173,7 @@ function PlaceOrderScreen() {
                     <ListGroup.Item>
                         <Row>
                             <Col>Tax:</Col>
-                            <Col>${cart.TaxPrice}</Col>
+                            <Col>${cart.taxPrice}</Col>
                         </Row>
                     </ListGroup.Item>
 
@@ -116,11 +184,16 @@ function PlaceOrderScreen() {
                         </Row>
                     </ListGroup.Item>
 
+
+                    <ListGroup.Item>
+                        {error && <Message variant='denger'>{error}</Message>}
+                    </ListGroup.Item>
+
                     <ListGroup.Item>
                         <Button     type='butten'
                                     className='btn-block'
                                     disabled={cart.cartItems === 0}
-                                    onClick={PlaceOrder}>
+                                    onClick={placeOrder}>
                                         Place Order
                                     </Button>
                     </ListGroup.Item>
