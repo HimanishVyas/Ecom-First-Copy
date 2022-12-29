@@ -10,6 +10,8 @@ import {
 
 
 
+
+
 export const cartReducer = (state = { cartItems: [], shippingAddress: {} }, action) => {
     switch (action.type) {
         case CART_ADD_ITEM:
@@ -47,6 +49,13 @@ export const cartReducer = (state = { cartItems: [], shippingAddress: {} }, acti
                 ...state,
                 paymentMethod: action.payload
             }
+
+        
+            case CART_CLEAR_ITEMS:
+                return {
+                   ...state,
+                   cartItems:[]
+                }
 
 
         default:
