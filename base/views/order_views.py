@@ -68,26 +68,46 @@ def addOrderItems(request):
     return Response('ORDER')
 
 
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def getOrderById(request, pk):
 
     user = request.user
-    print("User------>", user)
 
     try:
         order = Order.objects.get(_id=pk)
-        # print("Order------>", order)
-
         if user.is_staff or order.user == user:
-            print("Order------>", order)
             serializer = OrderSerializer(order, many=False)
-            print("serializer------>", serializer)
-            print("Response(serializer.data)------>", Response(serializer))
             return Response(serializer.data)
         else:
-            return Response({'detail':'Not authorized to view this order'}, status=status.HTTP_400_BAD_REQUEST)
-
+            return Response({'detail':'Not authorized to view this data'}, status =status.HTTP_400_BAD_REQUEST)
     except:
-        return Response({'detail':'Order dose not exists 1234565432345'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'detail':'Order does not exist'}, status =status.HTTP_400_BAD_REQUEST)
+
+
+
+
+
+
+# @api_view(['GET'])
+# @permission_classes([IsAuthenticated])
+# def getOrderById(request, pk):
+
+#     user = request.user
+#     print("User------>", user)
+
+#     try:
+#         order = Order.objects.get(_id=pk)
+#         # print("Order------>", order)
+
+#         if user.is_staff or order.user == user:
+#             print("Order------>", order)
+#             serializer = OrderSerializer(order, many=False)
+#             print("serializer------>", serializer)
+#             print("Response(serializer.data)------>", Response(serializer))
+#             return Response(serializer.data)
+#         else:
+#             return Response({'detail':'Not authorized to view this order'}, status=status.HTTP_400_BAD_REQUEST)
+
+#     except:
+#         return Response({'detail':'Order dose not exists 1234565432345'}, status=status.HTTP_400_BAD_REQUEST)
