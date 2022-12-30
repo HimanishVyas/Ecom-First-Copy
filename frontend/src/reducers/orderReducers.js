@@ -32,7 +32,7 @@ export const orderCreateReducer = (state={}, action) => {
             }
 
             case ORDER_CREATE_RESET:
-                return{}
+                return{ }
 
         default:
             return state
