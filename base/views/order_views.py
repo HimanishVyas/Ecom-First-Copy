@@ -9,6 +9,7 @@ from base.models import Product, Order, OrderItem, ShippingAddress
 from base.serializers import ProductSerializer, OrderSerializer
 
 from rest_framework import status
+from datetime import datetime
 
 
 @api_view(['POST'])
@@ -86,8 +87,15 @@ def getOrderById(request, pk):
 
 
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def UpdateOrderTopaid(request, pk):
+    order = Order.objects.get(_id=pk)
 
-
+    order.isPaid = True
+    order.paidAt = datetime.now()
+    order.save()
+    return Response('order was paid') 
 
 # @api_view(['GET'])
 # @permission_classes([IsAuthenticated])
