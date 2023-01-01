@@ -4,7 +4,7 @@ import {Table, Button} from 'react-bootstrap';
 import {useDispatch, useSelector} from 'react-redux';
 import Loader from '../components/Loader';
 import Message from '../components/Message';
-import {listUsers, deleteUser} from '../actions/userActions';
+import {listeUser, deleteUser} from '../actions/userActions';
 
 function UserListScreen({history}){
 
@@ -22,7 +22,7 @@ function UserListScreen({history}){
 
 	useEffect(() => {
 		if(userInfo && userInfo.isAdmin){
-			dispatch(listUsers())
+			dispatch(listeUser())
 		}else{
 			history.push('/login')
 		}

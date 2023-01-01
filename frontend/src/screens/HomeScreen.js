@@ -4,7 +4,8 @@ import {Row, Col} from 'react-bootstrap';
 import Product from '../components/Product';
 import Loader from '../components/Loader';
 import Message from '../components/Message';
-
+import Paginate from '../components/Paginate';
+import ProductCarousel from '../components/ProductCarousel';
 import {listProducts} from '../actions/productActions';
 
 
@@ -13,16 +14,16 @@ function HomeScreen({history}){
     const productList = useSelector(state => state.productList)
     const {error, loading, products, page, pages } = productList
 
-	
+	let keyword = history.location.search
 
     useEffect(()=>{
-        dispatch(listProducts())
-    },[dispatch])
+        dispatch(listProducts(keyword))
+    },[dispatch, keyword])
 
 
     return(
     <div>
-        
+        {!keyword && <ProductCarousel />}
 	    <h1 style={{textAlign:'center'}}>Trending Products</h1>
         <hr></hr>
 	        {loading ? <Loader />
@@ -36,7 +37,7 @@ function HomeScreen({history}){
 					                </Col>
 				                ))}
 			                </Row>
-			                
+			                <Paginate page={page} pages={pages} keyword={keyword} />
 		                </div>
 	        }
 

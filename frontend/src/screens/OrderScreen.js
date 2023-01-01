@@ -5,15 +5,13 @@ import {useDispatch, useSelector} from 'react-redux';
 import {PayPalButton} from 'react-paypal-button-v2';
 import Message from '../components/Message';
 import Loader from '../components/Loader';
-import {getOrderDetails, payOrder} from '../actions/orderActtions';
-import {ORDER_PAY_RESET} from '../constants/orderConstants';
+import {getOrderDetails, payOrder, deliverOrder} from '../actions/orderActions';
+import {ORDER_PAY_RESET, ORDER_DELIVER_RESET} from '../constants/orderConstants';
 
 // Paypal client Id of store VS_REACT
 //AY0a6MGLpNXHdrvrYafApE-MznK2pMXAaoGzQAsc20M54X4kF-pnbL5XIPHb2J5m9rz5H1AuSwpJEl36
 
 function OrderScreen({match, history}){
-
-    const a = 64
 	const orderId = match.params.id
 	const dispatch = useDispatch()
 
@@ -25,8 +23,8 @@ function OrderScreen({match, history}){
 	const orderPay = useSelector(state => state.orderPay)
 	const {loading: loadingPay, success:successPay} = orderPay
 
-	// const orderDeliver = useSelector(state => state.orderDeliver)
-	// const {loading: loadingDeliver, success:successDeliver} = orderDeliver
+	const orderDeliver = useSelector(state => state.orderDeliver)
+	const {loading: loadingDeliver, success:successDeliver} = orderDeliver
 
 	const userLogin = useSelector(state => state.userLogin)
 	const {userInfo} = userLogin
@@ -38,20 +36,22 @@ function OrderScreen({match, history}){
 	const addPaypalScript = () => {
 		const script = document.createElement('script')
 		script.type = 'text/javascript'
-		script.src = 'https://www.paypal.com/sdk/js?client-id=AfIG52_WYFk-_9-b7KEdoDpJQJ6aeYRWgPCvQpVnlkx7hIyH3esG51yvd13C8m8J6b9Drx2oXgehLDKb'
+		script.src = 'https://www.paypal.com/sdk/js?client-id=AY0a6MGLpNXHdrvrYafApE-MznK2pMXAaoGzQAsc20M54X4kF-pnbL5XIPHb2J5m9rz5H1AuSwpJEl36'
 		script.async = true
 		script.onload = () =>{setSdkReady(true)}
 		document.body.appendChild(script)
 	}
 
 	useEffect(() => {
-		
+		if(!userInfo){
+			history.push('/login')
+		}
 
-		if(!order || successPay || order._id !== Number(a) || successPay){
+		if(!order || successPay || order._id !== Number(orderId) || successDeliver){
 			dispatch({type:ORDER_PAY_RESET})
-			
+			dispatch({type:ORDER_DELIVER_RESET})
 
-			dispatch(getOrderDetails(a))
+			dispatch(getOrderDetails(orderId))
 		}else if(!order.isPaid){
 			if(!window.paypal){
 				addPaypalScript()
@@ -59,21 +59,21 @@ function OrderScreen({match, history}){
 				setSdkReady(true)
 			}
 		}
-	},[dispatch, order,  a, successPay])
+	},[dispatch, order,  orderId, successPay, successDeliver])
 
 	const successPaymentHandler = (paymentResult) => {
-		dispatch(payOrder(a,paymentResult))
+		dispatch(payOrder(orderId,paymentResult))
 	}
 
-	// const deliverHandler = () => {
-	// 	dispatch(deliverOrder(order))
-	// }
+	const deliverHandler = () => {
+		dispatch(deliverOrder(order))
+	}
 
     return loading ? (<Loader />) : error ? (
         <Message variant='danger'>{error}</Message>
         ) : (
         <div>
-            <h1 style={{ textAlign : 'center'}}>Order : {a}</h1>
+            <h1 style={{ textAlign : 'center'}}>Order : {order._id}</h1>
 			<Row>
 				<Col md={8}>
 					<ListGroup variant='flush'>
@@ -193,8 +193,17 @@ function OrderScreen({match, history}){
 
 						</ListGroup>
 
-						
-						
+						{loadingDeliver && <Loader />}
+						{userInfo && userInfo.isAdmin && order.isPaid && !order.isDelivered && (
+							<ListGroup.Item>
+								<Button
+									type='button'
+									className='btn btn-block w-100'
+									onClick={deliverHandler}
+								>
+									Mark As Deliver</Button>
+							</ListGroup.Item>
+						)}
 					</Card>
 
 				</Col>

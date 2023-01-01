@@ -7,7 +7,7 @@ import {getUserDetails, updateUserProfile} from '../actions/userActions';
 import Loader from '../components/Loader';
 import Message from '../components/Message';
 import {USER_UPDATE_PROFILE_RESET} from '../constants/userConstants';
-import { listMyOrders } from '../actions/orderActtions';
+import { listMyOrders } from '../actions/orderActions';
 
 
 function ProfileScreen({history}){
